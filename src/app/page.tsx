@@ -7,10 +7,10 @@ export default function Home() {
       <h1 className="text-4xl font-bold mb-8">Welcome to LMS Platform</h1>
       <div className="flex gap-4">
         <Button asChild>
-          <Link href="/login">Login</Link>
+          <Link href="/auth/login">Login</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/register">Register</Link>
+          <Link href="/auth/register">Register</Link>
         </Button>
       </div>
     </main>

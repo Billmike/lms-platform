@@ -18,13 +18,13 @@ export const useAuth = () => {
         // Redirect based on role
         switch (user.role) {
           case 'admin':
-            router.push('/admin');
+            router.push('/dashboard/admin');
             break;
           case 'instructor':
-            router.push('/instructor');
+            router.push('/dashboard/instructor');
             break;
           case 'student':
-            router.push('/student');
+            router.push('/dashboard/student');
             break;
         }
       }
@@ -39,7 +39,7 @@ export const useAuth = () => {
     const result = authStore.register(userData);
     
     if (result.success) {
-      router.push('/login');
+      router.push('/auth/login');
     } else {
       setError(result.message);
     }
@@ -49,7 +49,7 @@ export const useAuth = () => {
 
   const logout = () => {
     authStore.logout();
-    router.push('/login');
+    router.push('/auth/login');
   };
 
   return {

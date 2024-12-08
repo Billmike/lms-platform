@@ -2,6 +2,8 @@
 
 import { User, AuthState } from '@/types/auth';
 
+const TOKEN_KEY = 'lms_auth_data';
+
 // In-memory storage
 class AuthStore {
   private users: User[] = [
@@ -27,7 +29,7 @@ class AuthStore {
   }
 
   // Login
-  async login(email: string, password: string): Promise<{ success: boolean; message: string }> {
+  async login(email: string, password: string): Promise<{ success: boolean; message: string; user: AuthState['currentUser'] }> {
     const data = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -48,10 +50,10 @@ class AuthStore {
         isAuthenticated: true,
         currentUser: dataResponse.user,
       }
-      return { success: true, message: 'Login successful' };
+      return { success: true, message: 'Login successful', user: dataResponse.user };
     }
 
-    return { success: false, message: 'Login failed' }
+    return { success: false, message: 'Login failed', user: null }
   }
 
   // Register
@@ -72,11 +74,22 @@ class AuthStore {
   }
 
   // Logout
-  logout() {
-    this.authState = {
-      currentUser: null,
-      isAuthenticated: false,
-    };
+  async logout() {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST'
+      });
+
+      localStorage.removeItem(TOKEN_KEY);
+
+      this.authState = {
+        currentUser: null,
+        isAuthenticated: false,
+      };
+      return { success: true, message: 'Logout successful' };
+    } catch {
+      return { success: false, message: 'Logout failed' }
+    }
   }
 
   // Get user by email
@@ -86,7 +99,7 @@ class AuthStore {
 
   private getUserData(): AuthState {
     if (typeof window !== 'undefined') {
-      const data = localStorage.getItem('lms_auth_data');
+      const data = localStorage.getItem(TOKEN_KEY);
   
       if (data) return JSON.parse(data)
       

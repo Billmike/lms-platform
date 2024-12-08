@@ -12,8 +12,8 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     const data = await authStore.login(email, password)
 
-    if (data.success) {
-      router.push('/dashboard/admin')
+    if (data.success && data.user) {
+      router.push(`/dashboard/${data.user.role}`)
     }
   };
 
@@ -29,9 +29,12 @@ export const useAuth = () => {
     return result;
   };
 
-  const logout = () => {
-    authStore.logout();
-    router.push('/auth/login');
+  const logout = async () => {
+    const data = await authStore.logout();
+
+    if (data.success) {
+      router.push('/auth/login');
+    }
   };
 
   return {

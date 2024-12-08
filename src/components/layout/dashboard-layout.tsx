@@ -1,25 +1,14 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
 import { Header } from './header';
 import { Sidebar } from './sidebar';
-import { redirect } from 'next/navigation';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   requiredRole?: 'admin' | 'instructor' | 'student';
 }
 
-export function DashboardLayout({ children, requiredRole }: DashboardLayoutProps) {
-  const { user, isAuthenticated } = useAuth();
-
-  if (!isAuthenticated || !user) {
-    redirect('/auth/login');
-  }
-
-  if (requiredRole && user.role !== requiredRole) {
-    redirect(`/dashboard/${user.role}`);
-  }
+export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -1,3 +1,5 @@
+"use client";
+
 import { User, AuthState } from '@/types/auth';
 
 // In-memory storage
@@ -15,8 +17,8 @@ class AuthStore {
   ];
 
   private authState: AuthState = {
-    currentUser: null,
-    isAuthenticated: false,
+    currentUser: this.getUserData().currentUser,
+    isAuthenticated: this.getUserData().isAuthenticated,
   };
 
   // Get current auth state
@@ -25,21 +27,31 @@ class AuthStore {
   }
 
   // Login
-  login(email: string, password: string): { success: boolean; message: string } {
-    const user = this.users.find(
-      (u) => u.email === email && u.password === password
-    );
+  async login(email: string, password: string): Promise<{ success: boolean; message: string }> {
+    const data = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({email, password})
+    });
 
-    if (!user) {
-      return { success: false, message: 'Invalid credentials' };
+    const dataResponse = await data.json();
+
+    if (dataResponse.success && dataResponse.user) {
+      localStorage.setItem('lms_auth_data', JSON.stringify({
+        currentUser: dataResponse.user,
+        isAuthenticated: true
+      }));
+
+      this.authState = {
+        isAuthenticated: true,
+        currentUser: dataResponse.user,
+      }
+      return { success: true, message: 'Login successful' };
     }
 
-    this.authState = {
-      currentUser: user,
-      isAuthenticated: true,
-    };
-
-    return { success: true, message: 'Login successful' };
+    return { success: false, message: 'Login failed' }
   }
 
   // Register
@@ -70,6 +82,24 @@ class AuthStore {
   // Get user by email
   getUserByEmail(email: string): User | undefined {
     return this.users.find((u) => u.email === email);
+  }
+
+  private getUserData(): AuthState {
+    if (typeof window !== 'undefined') {
+      const data = localStorage.getItem('lms_auth_data');
+  
+      if (data) return JSON.parse(data)
+      
+      return {
+        currentUser: null,
+        isAuthenticated: false,
+      }
+    }
+
+    return {
+      currentUser: null,
+      isAuthenticated: false,
+    }
   }
 }
 

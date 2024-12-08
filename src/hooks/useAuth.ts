@@ -10,29 +10,11 @@ export const useAuth = () => {
   const [error, setError] = useState<string>('');
 
   const login = async (email: string, password: string) => {
-    const result = authStore.login(email, password);
-    
-    if (result.success) {
-      const user = authStore.getAuthState().currentUser;
-      if (user) {
-        // Redirect based on role
-        switch (user.role) {
-          case 'admin':
-            router.push('/dashboard/admin');
-            break;
-          case 'instructor':
-            router.push('/dashboard/instructor');
-            break;
-          case 'student':
-            router.push('/dashboard/student');
-            break;
-        }
-      }
-    } else {
-      setError(result.message);
+    const data = await authStore.login(email, password)
+
+    if (data.success) {
+      router.push('/dashboard/admin')
     }
-    
-    return result;
   };
 
   const register = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {

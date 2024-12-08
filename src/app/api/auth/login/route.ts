@@ -34,7 +34,7 @@ const users: User[] = [
   },
 ];
 
-export function findUserByCredentials(email: string, password: string) {
+function findUserByCredentials(email: string, password: string) {
   return users.find(u => u.email === email && u.password === password);
 }
 
